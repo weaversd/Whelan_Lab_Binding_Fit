@@ -1,0 +1,12 @@
+Turn into function. Potential arguments:
+  Decimal places to report Bmax and error
+  Decimal places to report Ka and error
+  Axis labels
+  Different fit equations
+  
+
+
+Things to do
+  Add calculation of n_value based on input data
+  Add ability to put in raw data
+  

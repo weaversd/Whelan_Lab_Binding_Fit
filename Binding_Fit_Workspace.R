@@ -9,14 +9,40 @@ y_axis_label <- bquote("("~I[0]-I~") /"~I[0]~"")
 plot_title <- "Binding Curve"
 
 #set n value (figure out how to do this automatically later)
-n_value <- 1.7394
+#n_value <- 1.7394
+
 
 
 #import dataset as dataframe: plot_data
 #thrombin_conc is in nM, change_y is ((Io-I)/Io), SEM is std error on the mean
 plot_data <- read_excel("APCE_data_8_12_2020.xlsx", 
                         sheet = "Import")
+#Calculate the n value:
+#copy plot data
+statistics_table <- plot_data
 
+#calculate columns
+statistics_table$log_thrombin <- log(statistics_table$thrombin_conc, 10)
+largest_change_y <- max(statistics_table$change_y)
+statistics_table$y <- (statistics_table$change_y / largest_change_y)
+#y2 is y/(1-y)
+statistics_table$y2<- (statistics_table$y / (1 - statistics_table$y))
+statistics_table$log_y2 <- log(statistics_table$y2, 10)
+#remove unimportant rows
+subset_statistics_table <- statistics_table[!(statistics_table$thrombin_conc == 0
+                                              | statistics_table$y == 1),]
+
+#make example linear fit:
+n_plot <- ggplot(data = subset_statistics_table) +
+  geom_point(aes(x = log_thrombin, y = log_y2))
+n_plot
+
+#linear regression
+n_regression <- lm(formula = log_y2 ~ log_thrombin, data = subset_statistics_table)
+n_regression_table <- coef(summary(n_regression))
+
+#store n value
+n_value <- n_regression_table[2,1]
 
 #find min and max x and y values
 max_x <- max(plot_data$thrombin_conc)
