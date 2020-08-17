@@ -136,5 +136,6 @@ bind_curve_thrombin <- function(file, title = "Binding Curve",
              label = Ka_string, size = 7, color = "dark gray")
   p_fit
   return(p_fit)
+  n_value
   
 }
