@@ -15,11 +15,12 @@ plot_title <- "Binding Curve"
 
 #import dataset as dataframe: plot_data
 #thrombin_conc is in nM, change_y is ((Io-I)/Io), SEM is std error on the mean
-plot_data <- read_excel("APCE_data_8_12_2020.xlsx", 
+plot_data <- read_excel("60uL_FA_Aptamer_Thrombin.xlsx", 
                         sheet = "Import")
 #Calculate the n value:
 #copy plot data
 statistics_table <- plot_data
+
 
 #calculate columns
 statistics_table$log_thrombin <- log(statistics_table$thrombin_conc, 10)

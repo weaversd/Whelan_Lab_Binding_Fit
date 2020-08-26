@@ -18,8 +18,14 @@
 
 bind_curve_thrombin <- function(file, title = "Binding Curve",
                                 dps = 3,
-                                x_ax = "Thromin Concentration (nM)",
+                                x_ax = "Thrombin Concentration (nM)",
                                 y_ax = bquote("("~I[0]-I~") /"~I[0]~"")) {
+  
+  #suppress warnings (which are described in comments above)
+  oldw <- getOption("warn")
+  options(warn = -1)
+  
+  
   #load libraries for analysis
   library(ggplot2)
   library(dplyr)
@@ -30,22 +36,35 @@ bind_curve_thrombin <- function(file, title = "Binding Curve",
   y_axis_label <- y_ax
   plot_title <- title
   
-  #set n value (figure out how to do this automatically later)
-  #n_value <- 1.7394
-  
-  
-  
   #import dataset as dataframe: plot_data
   #thrombin_conc is in nM, change_y is ((Io-I)/Io), SEM is std error on the mean
   plot_data <- read_excel(file, 
                           sheet = "Import")
+  
+  #rename columns
+  colnames(plot_data) <- c("thrombin_conc", "change_y", "SEM")
+  
   #Calculate the n value:
   #copy plot data
   statistics_table <- plot_data
   
+  print(statistics_table)
+  
+  #find min and max x and y values
+  max_x <- max(plot_data$thrombin_conc)
+  min_x <- min(plot_data$thrombin_conc)
+  max_y <- max(plot_data$change_y)
+  min_y <- min(plot_data$change_y)
+  
   #calculate columns
   statistics_table$log_thrombin <- log(statistics_table$thrombin_conc, 10)
-  largest_change_y <- max(statistics_table$change_y)
+  
+  last_y_table <- plot_data[plot_data$thrombin_conc == max_x, 2]
+  largest_change_y <- last_y_table[[1]]
+  print(last_y_table)
+  print(largest_change_y)
+  
+  
   statistics_table$y <- (statistics_table$change_y / largest_change_y)
   #y2 is y/(1-y)
   statistics_table$y2<- (statistics_table$y / (1 - statistics_table$y))
@@ -54,6 +73,8 @@ bind_curve_thrombin <- function(file, title = "Binding Curve",
   subset_statistics_table <- statistics_table[!(statistics_table$thrombin_conc == 0
                                                 | statistics_table$y == 1),]
   
+  
+  print(statistics_table)
   #make example linear fit:
   n_plot <- ggplot(data = subset_statistics_table) +
     geom_point(aes(x = log_thrombin, y = log_y2))
@@ -66,11 +87,6 @@ bind_curve_thrombin <- function(file, title = "Binding Curve",
   #store n value
   n_value <- n_regression_table[2,1]
   
-  #find min and max x and y values
-  max_x <- max(plot_data$thrombin_conc)
-  min_x <- min(plot_data$thrombin_conc)
-  max_y <- max(plot_data$change_y)
-  min_y <- min(plot_data$change_y)
   
   #set number of points in best fit line
   fit_line_points <- 100
@@ -135,7 +151,11 @@ bind_curve_thrombin <- function(file, title = "Binding Curve",
              y = (max_y - (7/12)*max_y),
              label = Ka_string, size = 7, color = "dark gray")
   p_fit
+  print(paste0("n = ", round(n_value, 4)))
   return(p_fit)
-  n_value
+  
+  
+  #turn warnings back on
+  options(warn = oldw)
   
 }
