@@ -152,7 +152,7 @@ bind_curve_thrombin <- function(file, title = "Binding Curve",
              label = Ka_string, size = 7, color = "dark gray")
   p_fit
   print(paste0("n = ", round(n_value, 4)))
-  return(p_fit)
+  return(fit_df)
   
   
   #turn warnings back on
