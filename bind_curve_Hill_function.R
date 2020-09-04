@@ -1,18 +1,21 @@
-###a function that provides a binding curve give excel data file input, and produces
-#a plot of the binding curve, as well as the calculated Bmax and Ka values.
-###by default used Hill equation for thrombin model. Other equations will be built in later
+###a function that provides a binding curve using the Hill Equation give excel data file input, and produces
+#a plot of the binding curve, as well as the calculated Bmax, n, and Ka values.
 ###Automatically supplies 1 as starting points for all variables in non linear least squares regression
-###tables must not have na values
+###tables must not have na values. (This is the cause of the Warning messages. For most data 1 is fine)
 ###file must be .xlsx and have a sheet titled "Import" with three columns of data:
   ###1st column: concentration of protein
-  ###2nd column: change in y values (I0-I)/I0
+  ###2nd column: change in y values (for example, change in anisotropy)
   ###3rd column: standard error of the mean for change in y.
 ###function arguments:
   ###file = location of .xlsx file (~required~)
-  ###title = graph title (default "Binding Curve)
-  ###x_ax = x axis label (default Thrombin Concentration (nM))
-  ###y_ax = y axis label (default "(I0-I)/I0")
-  ###dps = number of decimal places (default 3)
+  ###title = graph title (default "Binding Curve")
+  ###x_ax = x axis label (default "Thrombin Concentration (nM)")
+  ###y_ax = y axis label (default "Change in Anisotropy")
+  ###dps_ka = number of decimal places for k_a value (default 3)
+  ###dps_bmax = number of decimal places for Bmax value (default 4)
+  ###dps_n = number of decimal places for n value (default 4)
+  ###return_obj = whether to return a plot or fit_df. Default is "plot", which returns ggplot plot
+    ##set return_obj to "fit_df" to return a data frame with fit data that can be added to another plot
 
 
 
@@ -40,11 +43,11 @@ bind_curve_Hill <- function(file, title = "Binding Curve",
   plot_title <- title
   
   #import dataset as dataframe: plot_data
-  #thrombin_conc is in nM, change_y is ((Io-I)/Io), SEM is std error on the mean
   plot_data <- read_excel(file, 
                           sheet = "Import")
   
   #rename columns
+  #"thrombin_conc" used as thrombin is a good model for Hill. Can be any target molecule
   colnames(plot_data) <- c("thrombin_conc", "change_y", "SEM")
   
   #Calculate the n value:
